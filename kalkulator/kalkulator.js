@@ -1,18 +1,41 @@
 const readline = require("readline-sync");
 
 let history = []; 
-let previousResult = 0; 
+let previousResults = []; // Array to store previous results
+
 while (true) {
-  const angkaPertama = previousResult || parseFloat(readline.question("Masukan angka pertama : "));
-  const operator = readline.question("Pilih operator (+,-,*,/,%) : ");
-  const angkaKedua = parseFloat(readline.question("Masukan angka kedua : "));
+  // Only show history if there are previous results
+  if (previousResults.length > 0) {
+    console.log("\nRiwayat hasil:");
+    previousResults.forEach((result, index) => {
+      console.log(`${index + 1}. ${result.expression} = ${result.hasil}`);
+    });
+  }
+
+  // Directly ask for the first number
+  let angkaPertama = parseFloat(readline.question("Masukkan angka pertama: "));
+  
+  // Check if the input is valid
+  if (isNaN(angkaPertama)) {
+    console.log("Input tidak valid, silakan masukkan angka baru.");
+    continue; // Ask again if invalid
+  }
+
+  const operator = readline.question("Pilih operator (+, -, *, /, %): ");
+
+  let angkaKedua;
+  while (true) {
+    angkaKedua = parseFloat(readline.question("Masukkan angka kedua: "));
+    if (operator === '/' && angkaKedua === 0) {
+      console.log("Angka kedua tidak boleh bernilai 0. Silakan masukkan angka kedua yang valid.");
+    } else {
+      break; // Exit the loop if the input is valid
+    }
+  }
 
   const requiredOperator = ["+", "-", "*", "/", "%"];
 
-  if (isNaN(angkaPertama) || isNaN(angkaKedua)) {
-    console.log("Inputan anda tidak valid");
-    continue;
-  } else if (!requiredOperator.includes(operator)) {
+  if (!requiredOperator.includes(operator)) {
     console.log("Pilih sesuai operator yang tersedia");
     continue;
   }
@@ -25,20 +48,25 @@ while (true) {
     continue;
   }
 
-  console.log(`Hasil nya adalah ${hasil}`);
-  history.push(`${angkaPertama} ${operator} ${angkaKedua} = ${hasil}`);
-  previousResult = hasil;
+  const expression = `${angkaPertama} ${operator} ${angkaKedua}`;
+  console.log(`Hasilnya adalah ${hasil}`);
+  
+  // Save the result along with the expression for future reference
+  history.push(expression + ' = ' + hasil);
+  previousResults.push({ expression, hasil }); // Store both expression and result
 
-  const choice = readline.question("Lanjutkan perhitungan? (y/n) : ");
-  if (choice.toLowerCase() !== 'y') {
+  const choice = readline.question("Mau lanjut berhitung? (ya/tidak): ");
+  if (choice.toLowerCase() !== 'ya') {
     break;
   }
 }
 
-console.log("Riwayat kalkulasi:");
-history.forEach((item, index) => {
-  console.log(`${index + 1}. ${item}`);
-});
+if (history.length > 0) {
+  console.log("\nRiwayat kalkulasi:");
+  history.forEach((item, index) => {
+    console.log(`${index + 1}. ${item}`);
+  });
+}
 
 function processHasil(inputanPertama, inputanKedua, operator) {
   switch (operator) {
@@ -55,5 +83,7 @@ function processHasil(inputanPertama, inputanKedua, operator) {
       return inputanPertama / inputanKedua;
     case "%":
       return inputanPertama % inputanKedua;
+    default:
+      throw new Error("Operator tidak valid");
   }
 }
