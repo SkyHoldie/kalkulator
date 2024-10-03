@@ -13,12 +13,23 @@ while (true) {
   }
 
   // Directly ask for the first number
-  let angkaPertama = parseFloat(readline.question("Masukkan angka pertama: "));
+  const angkaPertamaChoice = readline.question("Masukkan angka pertama (ketik nomor atau 'baru' untuk angka baru): ");
   
-  // Check if the input is valid
-  if (isNaN(angkaPertama)) {
-    console.log("Input tidak valid, silakan masukkan angka baru.");
-    continue; // Ask again if invalid
+  let angkaPertama;
+
+  if (angkaPertamaChoice.toLowerCase() === 'baru') {
+    angkaPertama = parseFloat(readline.question("Masukkan angka pertama: "));
+  } else {
+    const index = parseInt(angkaPertamaChoice) - 1;
+    if (index >= 0 && index < previousResults.length) {
+      angkaPertama = previousResults[index].hasil; // Use previous result
+    } else {
+      angkaPertama = parseFloat(angkaPertamaChoice); // Convert input to number
+      if (isNaN(angkaPertama)) {
+        console.log("Input tidak valid, silakan masukkan angka baru.");
+        continue; // Ask again if invalid
+      }
+    }
   }
 
   const operator = readline.question("Pilih operator (+, -, *, /, %): ");
